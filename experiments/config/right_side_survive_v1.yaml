@@ -1,0 +1,4 @@
+selection_config:
+  method: 'one_side_survive'
+  side: 'right'
+  survival_region_proportion: 0.25

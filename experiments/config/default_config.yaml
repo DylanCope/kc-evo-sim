@@ -1,0 +1,9 @@
+n_iterations: 10
+world_steps_per_iteration: 100
+world_width: 200
+world_height: 200
+pop_size: 20
+hidden_layer_dims: [5, 5]
+include_diagonal_cells: False
+mutation_rate: 0.01
+repop_method: 'random_crossover'
