@@ -1,4 +1,4 @@
-from evo.organism import Organism, LocalWorldState
+from evo.organism import Organism, LocalWorldState, Action
 
 import random
 
@@ -20,7 +20,7 @@ class World:
 
         # Data structures for storing organisms
         self.organisms = []
-        self.grid = [[None] * self.world_width] * self.world_height
+        self.grid = [[None for _ in range(self.world_width)] for _ in range(self.world_height)]
 
     @property
     def current_population(self) -> int:
@@ -48,20 +48,15 @@ class World:
                               organism: Organism,
                               x: int, y: int) -> None:
         self.grid[y][x] = organism
-        self.update_local_world_state(organism, x, y)
 
-    def add_organism(self, organism: Organism) -> None:
-        self.organisms.append(organism)
-        x, y = self.find_random_empty_cell()
-        self.set_organism_position(organism, x, y)
+        if organism.local_world_state is not None:
+            old_x = organism.local_world_state.x
+            old_y = organism.local_world_state.y
+            self.grid[old_y][old_x] = None
 
-    def update_local_world_state(self,
-                                 organism: Organism,
-                                 x: int, y: int) -> None:
-        """
-        Updates the local world state of an organism.
-        """
-        if organism.local_world_state is None:
+            organism.local_world_state.x = x
+            organism.local_world_state.y = y
+        else:
             if self.include_diagonal_cells_in_local_state:
                 n_local_cells = 8
             else:
@@ -73,17 +68,22 @@ class World:
                 world_metadata=self.config
             )
 
-        organism.local_world_state.x = x
-        organism.local_world_state.y = y
+    def add_organism(self, organism: Organism) -> None:
+        self.organisms.append(organism)
+        x, y = self.find_random_empty_cell()
+        self.set_organism_position(organism, x, y)
 
+    def update_local_world_state(self, organism: Organism) -> None:
+        """
+        Updates the local world state of an organism.
+        """
         if self.include_diagonal_cells_in_local_state:
-            self._add_locals_including_diagonals(organism, x, y)
+            self._add_locals_including_diagonals(organism)
         else:
-            self._add_locals_excluding_diagonals(organism, x, y)
+            self._add_locals_excluding_diagonals(organism)
 
-    def _add_locals_excluding_diagonals(self,
-                                        organism: Organism,
-                                        x: int, y: int):
+    def _add_locals_excluding_diagonals(self, organism: Organism):
+        x, y = self.get_organism_position(organism)
         local_cells = organism.local_world_state.local_cells
         local_cells[0] = self.grid[y - 1][x] if y > 0 else None
         local_cells[1] = self.grid[y + 1][x] if y < self.world_height - 1 else None
@@ -91,9 +91,8 @@ class World:
         local_cells[3] = self.grid[y][x + 1] if x < self.world_width - 1 else None
         return local_cells
 
-    def _add_locals_including_diagonals(self,
-                                        organism: Organism,
-                                        x: int, y: int):
+    def _add_locals_including_diagonals(self, organism: Organism):
+        x, y = self.get_organism_position(organism)
         local_cells = organism.local_world_state.local_cells
         i = 0
         for dy in range(-1, 2):
@@ -128,9 +127,8 @@ class World:
 
     def update_organism(self, organism: Organism) -> None:
         action = organism.get_action()
-        dx, dy = action.to_tuple()
-        curr_x = organism.local_world_state.x
-        curr_y = organism.local_world_state.y
+        dx, dy = Action.to_tuple(action)
+        curr_x, curr_y = self.get_organism_position(organism)
         new_x, new_y = self.get_new_pos(curr_x, curr_y, dx, dy)
         if self.is_cell_occupied(new_x, new_y):
             return
@@ -149,6 +147,7 @@ class World:
     def update(self) -> None:
         random.shuffle(self.organisms)
         for organism in self.organisms:
+            self.update_local_world_state(organism)
             self.update_organism(organism)
 
     def kill_organism(self, organism: Organism) -> None:

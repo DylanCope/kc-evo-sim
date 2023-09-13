@@ -33,8 +33,7 @@ class SelectionFunction(ABC):
         final_population = world.current_population
 
         return {
-            'initial_population_size': initial_population,
-            'final_population_size': final_population,
+            'surviving_population_size': final_population,
             'survival_rate': final_population / initial_population
         }
 
@@ -67,9 +66,9 @@ def get_selection_function(config: dict) -> SelectionFunction:
     if selection_config is None:
         raise Exception('selection_config not specified in config')
 
-    selection_method = selection_config.get('selection_method')
+    selection_method = selection_config.get('method')
     if selection_method is None:
-        raise Exception('selection_method not specified in config')
+        raise Exception('selection_method not specified in config: ' + str(selection_config))
 
     if selection_method == 'one_side_survive':
         return SelectionFunctionOneSideSurvive(selection_config)

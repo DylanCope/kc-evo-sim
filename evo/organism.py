@@ -23,14 +23,15 @@ class Action:
     def from_index(index: int) -> 'Action':
         return Action.all_actions()[index]
 
-    def to_tuple(self) -> tuple:
-        if self == Action.UP:
+    @staticmethod
+    def to_tuple(action: str) -> tuple:
+        if action == Action.UP:
             return (0, -1)
-        elif self == Action.DOWN:
+        elif action == Action.DOWN:
             return (0, 1)
-        elif self == Action.LEFT:
+        elif action == Action.LEFT:
             return (-1, 0)
-        elif self == Action.RIGHT:
+        elif action == Action.RIGHT:
             return (1, 0)
 
 
@@ -63,10 +64,11 @@ class FeedForwardNeuralNetwork:
 
     def forward(self, inputs: List[float]) -> List[float]:
         x = np.concatenate([np.array(inputs), [1.]])
-        for layer in self.layers_weights:
-            x = np.matmul(x, layer)
+        for layer_idx, weight_matrix in enumerate(self.layers_weights):
+            x = np.matmul(x, weight_matrix)
             x = np.tanh(x)
-            x = np.concatenate([x, [1.]])
+            if layer_idx < len(self.layers_weights) - 1:
+                x = np.concatenate([x, [1.]])
         return x
 
 
@@ -177,7 +179,7 @@ class Genome:
 class Organism:
 
     def __init__(self, config: dict, genome: Genome) -> None:
-        self.local_world_state = None
+        self.local_world_state: Optional[LocalWorldState] = None
         self.genome = genome
         self.brain = genome.make_brain()
         self.brain_inputs = np.array([0.] * LocalWorldState.num_observations(config))
@@ -188,9 +190,6 @@ class Organism:
         self.world_height = config.get('world_width')
         assert self.world_height is not None, \
             'World height not specified in config'
-
-    def set_local_world_state(self, state: LocalWorldState) -> None:
-        self.local_world_state = state
 
     def update_brain_inputs(self) -> None:
         self.brain_inputs[0] = self.local_world_state.x / self.world_width
