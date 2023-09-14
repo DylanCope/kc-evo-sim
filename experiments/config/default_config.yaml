@@ -1,8 +1,8 @@
-n_iterations: 20
+n_iterations: 50
 world_steps_per_iteration: 100
 world_width: 50
 world_height: 50
-pop_size: 200
+pop_size: 300
 hidden_layer_dims: [5, 5]
 include_diagonal_cells: False
 mutation_rate: 0.05

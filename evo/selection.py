@@ -38,7 +38,18 @@ class SelectionFunction(ABC):
         }
 
 
-class SelectionFunctionOneSideSurvive(SelectionFunction):
+class RegionBasedSelectionFunction(SelectionFunction):
+
+    def in_survival_region(self, world: World, x: int, y: int) -> bool:
+        raise NotImplementedError()
+
+    def selection_fn(self, world: World, organism: Organism) -> bool:
+        x = organism.local_world_state.x
+        y = organism.local_world_state.y
+        return self.in_survival_region(world, x, y)
+
+
+class SelectionFunctionOneSideSurvive(RegionBasedSelectionFunction):
 
     def __init__(self, selection_config: dict):
         super().__init__(selection_config)
@@ -50,15 +61,15 @@ class SelectionFunctionOneSideSurvive(SelectionFunction):
         assert self.survival_side is not None, \
             'survival_side not specified in config'
 
-    def selection_fn(self, world: World, organism: Organism) -> dict:
+    def in_survival_region(self, world: World, x: int, y: int) -> bool:
         if self.survival_side == 'left':
-            return organism.local_world_state.x / world.world_width < self.survival_region_proportion
+            return x / world.world_width < self.survival_region_proportion
         elif self.survival_side == 'right':
-            return organism.local_world_state.x / world.world_width > 1 - self.survival_region_proportion
+            return x / world.world_width > 1 - self.survival_region_proportion
         elif self.survival_side == 'top':
-            return organism.local_world_state.y / world.world_height < self.survival_region_proportion
+            return y / world.world_height < self.survival_region_proportion
         elif self.survival_side == 'bottom':
-            return organism.local_world_state.y / world.world_height > 1 - self.survival_region_proportion
+            return y / world.world_height > 1 - self.survival_region_proportion
 
 
 def get_selection_function(config: dict) -> SelectionFunction:

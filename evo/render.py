@@ -1,3 +1,4 @@
+from evo.selection import RegionBasedSelectionFunction, SelectionFunction
 from evo.world import World
 
 from typing import List
@@ -8,7 +9,8 @@ import imageio
 import pygame
 import os
 
-# set SDL to use the dummy NULL video driver, 
+
+# set SDL to use the dummy NULL video driver,
 #   so it doesn't need a windowing system.
 os.environ["SDL_VIDEODRIVER"] = "dummy"
 
@@ -16,23 +18,33 @@ pygame.display.init()
 WINDOW_SIZE = 800
 PYGAME_WINDOW = pygame.display.set_mode((WINDOW_SIZE, WINDOW_SIZE))
 WHITE = (255, 255, 255)
+LIGHT_GREEN = (192, 255, 158)
 BLACK = (0, 0, 0)
 
 
 class RenderVideoCallback:
 
-    def __init__(self, frequency: int, videos_dir: str = 'video', fps: int = 5):
+    def __init__(self,
+                 frequency: int,
+                 n_iterations: int,
+                 videos_dir: str = 'video',
+                 fps: int = 5):
         self.frequency = frequency
+        self.n_iterations = n_iterations
         self.videos_dir = videos_dir
+        self.sim_selection_fn = None
         Path(self.videos_dir).mkdir(parents=True, exist_ok=True)
         self.fps = fps
         self.frames = []
 
+    def is_video_iteration(self, iteration: int) -> bool:
+        return iteration % self.frequency == 0 or iteration == self.n_iterations - 1
+
     def on_step_finish(self, iteration: int, world: World) -> dict:
         logs = {}
 
-        if iteration % self.frequency == 0:
-            frame = render_world(world)
+        if self.is_video_iteration(iteration):
+            frame = render_world(world, self.sim_selection_fn)
             self.frames.append(frame)
 
         return logs
@@ -40,7 +52,7 @@ class RenderVideoCallback:
     def on_iteration_finish(self, iteration: int, iteration_logs: dict) -> None:
         logs = {}
 
-        if iteration % self.frequency == 0:
+        if self.is_video_iteration(iteration):
             video_path = f'{self.videos_dir}/iteration_{iteration:06d}'
             logs['video_save_file'] = save_video(self.frames, video_path, fps=self.fps)
             self.frames = []
@@ -48,7 +60,8 @@ class RenderVideoCallback:
         return logs
 
 
-def render_world(world: World) -> np.ndarray:
+def render_world(world: World,
+                 sim_selection_fn: SelectionFunction = None) -> np.ndarray:
     """
     Renders the world.
 
@@ -63,22 +76,27 @@ def render_world(world: World) -> np.ndarray:
     cell_width = WINDOW_SIZE / world.world_width
     cell_height = WINDOW_SIZE / world.world_height
 
+    def get_cell_rect(x: int, y: int):
+        return (
+            y * cell_width, x * cell_height,
+            cell_width, cell_height
+        )
+
+    if isinstance(sim_selection_fn, RegionBasedSelectionFunction):
+        for x in range(world.world_width):
+            for y in range(world.world_height):
+                if sim_selection_fn.in_survival_region(world, x, y):
+                    rect = get_cell_rect(x, y)
+                    pygame.draw.rect(PYGAME_WINDOW, LIGHT_GREEN, rect)
+
     # Draw the organisms as black cells
     for organism in world.organisms:
         x, y = world.get_organism_position(organism)
         if world.grid[y][x] is not None:
-            rect = (
-                y * cell_width, x * cell_height,
-                cell_width, cell_height
-            )
+            rect = get_cell_rect(x, y)
             pygame.draw.rect(PYGAME_WINDOW, BLACK, rect)
 
-    # Update the display
-    # pygame.display.flip()
-    # img = pygame.surfarray.array3d(pygame)
-    img = np.flipud(np.rot90(pygame.surfarray.array3d(pygame.display.get_surface())))
-
-    return img
+    return pygame.surfarray.array3d(pygame.display.get_surface())
 
 
 def save_video(frames: List[np.ndarray],

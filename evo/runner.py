@@ -19,19 +19,19 @@ class ExperimentRunner:
         print('Running simulation with config:')
         print(yaml.dump(config, default_flow_style=False))
 
-        callbacks = RunCallbacks([
-            RenderVideoCallback(config.get('video_frequency'),
-                                videos_dir=self.experiment_dir + '/videos')
-        ])
+        video_cb = RenderVideoCallback(config.get('video_frequency'),
+                                       self.n_iterations,
+                                       videos_dir=self.experiment_dir + '/videos')
+        callbacks = RunCallbacks([video_cb])
 
         self.simualtion = EvolutionSimulation(config, callbacks=callbacks)
+        video_cb.sim_selection_fn = self.simualtion.selection
 
         self.history = []
 
     def run(self):
         self.history = []
-        for iteration in range(1, self.n_iterations + 1):
-            print(f'Iteration {iteration}')
+        for iteration in range(0, self.n_iterations):
             iteration_logs = self.simualtion.run_iteration(iteration)
             self.log_iteration(iteration_logs)
             self.history.append(iteration_logs)
