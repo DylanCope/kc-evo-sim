@@ -1,0 +1,12 @@
+'method' object is not iterableTraceback (most recent call last):
+  File "/home/dylan/projects/kc-evo-sim/evo/runner.py", line 38, in run
+    self.simualtion.run_generation(generation)
+  File "/home/dylan/projects/kc-evo-sim/evo/simulation.py", line 45, in run_generation
+    self.callbacks.on_generation_finish(generation, generation_logs, self.world)
+  File "/home/dylan/projects/kc-evo-sim/evo/util/callback.py", line 48, in on_generation_finish
+    callback.on_generation_finish(generation, generation_logs, world)
+  File "/home/dylan/projects/kc-evo-sim/evo/util/logger.py", line 66, in on_generation_finish
+    self.plot_metrics()
+  File "/home/dylan/projects/kc-evo-sim/evo/util/logger.py", line 78, in plot_metrics
+    for metric in self.plot_metrics:
+TypeError: 'method' object is not iterable

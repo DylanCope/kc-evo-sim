@@ -1,0 +1,29 @@
+callbacks:
+  logger:
+    log_frequency: 1
+    log_to_stdout: true
+    plot_frequency: 3
+    plot_metrics:
+    - survival_rate
+    priority: 1
+  render_video:
+    fps: 10
+    video_frequency: 10
+experiment_dir: experiments/runs/debug/run_2023-09-15_18-23-27_8756751622577
+experiment_name: debug
+hidden_layer_dims:
+- 5
+- 5
+include_diagonal_cells: false
+mutation_rate: 0.05
+n_generations: 10
+pop_size: 300
+repop_config:
+  method: random_crossover
+selection_config:
+  method: one_side_survive
+  survival_region_proportion: 0.1
+  survival_side: right
+world_height: 50
+world_steps_per_generation: 100
+world_width: 50

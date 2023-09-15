@@ -1,0 +1,8 @@
+inherits_from: right_side_survive_v1
+world_width: 30
+world_height: 30
+n_generations: 10
+callbacks:
+  render_video:
+    video_frequency: 5
+    fps: 20

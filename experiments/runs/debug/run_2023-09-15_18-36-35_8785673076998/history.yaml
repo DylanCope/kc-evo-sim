@@ -1,0 +1,6 @@
+- generation: 0
+  genomes_ckpt: experiments/runs/debug/run_2023-09-15_18-36-35_8785673076998/genomes/genomes_000000.npy
+  n_new_organisms: 254
+  survival_rate: 0.15333333333333332
+  surviving_population_size: 46
+  video_save_file: experiments/runs/debug/run_2023-09-15_18-36-35_8785673076998/videos/generation_000000.mp4

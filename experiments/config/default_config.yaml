@@ -1,10 +1,22 @@
-n_iterations: 50
-world_steps_per_iteration: 100
+n_generations: 100
+world_steps_per_generation: 100
 world_width: 50
 world_height: 50
 pop_size: 300
 hidden_layer_dims: [5, 5]
 include_diagonal_cells: False
 mutation_rate: 0.05
-repop_method: 'random_crossover'
-video_frequency: 5
+repop_config:
+  method: 'random_crossover'
+callbacks:
+  render_video:
+    video_frequency: 10
+    fps: 10
+  logger:
+    priority: 1
+    log_frequency: 1
+    plot_frequency: 3
+    plot_metrics: ['survival_rate',]
+    log_to_stdout: True
+    save_genomes: True
+    save_genomes_frequency: 10

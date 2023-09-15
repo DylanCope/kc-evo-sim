@@ -1,0 +1,5 @@
+n_generations: 10
+selection_config:
+  method: 'one_side_survive'
+  survival_side: 'right'
+  survival_region_proportion: 0.1

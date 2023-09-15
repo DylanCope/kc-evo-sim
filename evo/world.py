@@ -1,3 +1,4 @@
+from typing import List
 from evo.organism import Organism, LocalWorldState, Action
 
 import random
@@ -19,7 +20,7 @@ class World:
             raise Exception('include_diagonal_cells not specified in config')
 
         # Data structures for storing organisms
-        self.organisms = []
+        self.organisms: List[Organism] = []
         self.grid = [[None for _ in range(self.world_width)] for _ in range(self.world_height)]
 
     @property

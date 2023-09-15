@@ -1,48 +1,61 @@
 from evo.simulation import EvolutionSimulation, RunCallbacks
-from evo.render import RenderVideoCallback
+from evo.util.registry import get_callback
 
 from pathlib import Path
 import yaml
+
+from evo.util import get_timestamp, merge_dicts_recursively
 
 
 class ExperimentRunner:
 
     def __init__(self, config):
-        self.n_iterations = config.get('n_iterations')
-        assert self.n_iterations is not None, \
-            'n_iterations not specified in config'
+        self.n_generations = config.get('n_generations')
+        assert self.n_generations is not None, \
+            'n_generations not specified in config'
 
         self.name = config.get('experiment_name')
-        self.experiment_dir = f'experiments/logs/{self.name}_{hash(self)}'
+        self.experiment_dir = f'experiments/runs/{self.name}/run_{get_timestamp()}_{hash(self)}'
         Path(self.experiment_dir).mkdir(parents=True, exist_ok=True)
+        config['experiment_dir'] = self.experiment_dir
 
         print('Running simulation with config:')
         print(yaml.dump(config, default_flow_style=False))
 
-        video_cb = RenderVideoCallback(config.get('video_frequency'),
-                                       self.n_iterations,
-                                       videos_dir=self.experiment_dir + '/videos')
-        callbacks = RunCallbacks([video_cb])
+        with open(f'{self.experiment_dir}/config.yaml', 'w') as config_file:
+            yaml.dump(config, config_file, default_flow_style=False)
 
-        self.simualtion = EvolutionSimulation(config, callbacks=callbacks)
-        video_cb.sim_selection_fn = self.simualtion.selection
+        self.callbacks = RunCallbacks([
+            get_callback(config, callback_name)
+            for callback_name in config.get('callbacks', [])
+        ])
 
-        self.history = []
+        self.simualtion = EvolutionSimulation(config, callbacks=self.callbacks)
 
     def run(self):
-        self.history = []
-        for iteration in range(0, self.n_iterations):
-            iteration_logs = self.simualtion.run_iteration(iteration)
-            self.log_iteration(iteration_logs)
-            self.history.append(iteration_logs)
-            self.save_history()
+        try:
+            for generation in range(0, self.n_generations):
+                self.simualtion.run_generation(generation)
 
-    def save_history(self):
-        with open(f'{self.experiment_dir}/history.yaml', 'w') as history_file:
-            yaml.dump(self.history, history_file, default_flow_style=False)
+        except KeyboardInterrupt:
+            self.callbacks.on_interrupt()
 
-    def log_iteration(self, iteration_logs: dict) -> None:
-        print(yaml.dump(iteration_logs, default_flow_style=False))
+        except Exception as e:
+            self.callbacks.on_interrupt()
+            self._handle_exception(e)
+
+    def _handle_exception(self, e):
+        self.callbacks.on_interrupt()
+        crash_dir = f'{self.experiment_dir}/crash'
+        Path(crash_dir).mkdir(parents=True, exist_ok=True)
+
+        import traceback
+
+        with open(f'{crash_dir}/exception_trace.txt', 'a') as f:
+            f.write(str(e))
+            f.write(traceback.format_exc())
+
+        raise e
 
 
 def load_config(config_name: str):
@@ -51,9 +64,10 @@ def load_config(config_name: str):
 
     if 'inherits_from' in config:
         parent_config = load_config(config['inherits_from'])
-        config = {**parent_config, **config}
+        config = merge_dicts_recursively(parent_config, config)
+
     elif config_name != 'default_config':
         parent_config = load_config('default_config')
-        config = {**parent_config, **config}
+        config = merge_dicts_recursively(parent_config, config)
 
     return config

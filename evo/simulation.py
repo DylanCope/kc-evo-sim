@@ -1,28 +1,7 @@
 from evo.world import World
 from evo.organism import Organism
-from evo.selection import get_selection_function
-from evo.repopulation import get_repop_function
-
-
-class RunCallbacks:
-
-    def __init__(self, callbacks=None):
-        self.callbacks = callbacks or []
-
-    def add_callback(self, callback):
-        self.callbacks.append(callback)
-
-    def on_step_finish(self, iteration: int, world: World) -> dict:
-        logs = {}
-        for callback in self.callbacks:
-            logs.update(callback.on_step_finish(iteration, world))
-        return logs
-
-    def on_iteration_finish(self, iteration: int, iteration_logs: dict) -> None:
-        logs = {}
-        for callback in self.callbacks:
-            logs.update(callback.on_iteration_finish(iteration, iteration_logs))
-        return logs
+from evo.util.registry import get_selection_function, get_repop_function
+from evo.util.callback import RunCallbacks
 
 
 class EvolutionSimulation:
@@ -31,9 +10,9 @@ class EvolutionSimulation:
         self.config = config
         self.callbacks = callbacks or RunCallbacks()
 
-        self.steps_per_iteration = config.get('world_steps_per_iteration')
-        assert self.steps_per_iteration is not None, \
-            'world_steps_per_iteration not specified in config'
+        self.steps_per_generation = config.get('world_steps_per_generation')
+        assert self.steps_per_generation is not None, \
+            'world_steps_per_generation not specified in config'
 
         self.world = World(config)
 
@@ -48,20 +27,20 @@ class EvolutionSimulation:
         self.selection = get_selection_function(config)
         self.repopulate = get_repop_function(config)
 
-    def simulate(self, iteration: int) -> None:
-        iteration_logs = {'iteration': iteration}
+    def simulate(self, generation: int) -> None:
+        generation_logs = {'generation': generation}
         self.world.reset()
-        for _ in range(self.steps_per_iteration):
+        for _ in range(self.steps_per_generation):
             self.world.update()
-            iteration_logs.update(self.callbacks.on_step_finish(iteration, self.world))
-        return iteration_logs
+            generation_logs.update(self.callbacks.on_step_finish(generation, self.world))
+        return generation_logs
 
-    def run_iteration(self, iteration: int) -> dict:
+    def run_generation(self, generation: int) -> dict:
         """
-        Runs a single iteration of the simulation.
+        Runs a single generation of the simulation.
         """
-        iteration_logs = self.simulate(iteration)
-        iteration_logs.update(self.selection(self.world))
-        iteration_logs.update(self.repopulate(self.world))
-        iteration_logs.update(self.callbacks.on_iteration_finish(iteration, iteration_logs))
-        return iteration_logs
+        generation_logs = self.simulate(generation)
+        generation_logs.update(self.selection(self.world))
+        generation_logs.update(self.repopulate(self.world))
+        self.callbacks.on_generation_finish(generation, generation_logs, self.world)
+        return generation_logs

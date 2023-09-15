@@ -1,0 +1,10 @@
+'bool' object is not callableTraceback (most recent call last):
+  File "/home/dylan/projects/kc-evo-sim/evo/runner.py", line 38, in run
+    self.simualtion.run_generation(generation)
+  File "/home/dylan/projects/kc-evo-sim/evo/simulation.py", line 45, in run_generation
+    self.callbacks.on_generation_finish(generation, generation_logs, self.world)
+  File "/home/dylan/projects/kc-evo-sim/evo/util/callback.py", line 48, in on_generation_finish
+    callback.on_generation_finish(generation, generation_logs, world)
+  File "/home/dylan/projects/kc-evo-sim/evo/util/logger.py", line 64, in on_generation_finish
+    self.log_to_stdout(generation_logs)
+TypeError: 'bool' object is not callable
