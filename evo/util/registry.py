@@ -16,35 +16,35 @@ _registry = {
 }
 
 
-def _register_callback_class(name: str, cb_cls: Type['callback.Callback']):
+def register_callback_class(name: str, cb_cls: Type['callback.Callback']):
     _registry[CALLBACK][name] = cb_cls
 
 
-def _register_selection_fn_class(name: str, selection_cls: Type['selection_fn.SelectionFunction']):
+def register_selection_fn_class(name: str, selection_cls: Type['selection_fn.SelectionFunction']):
     _registry[SELECT][name] = selection_cls
 
 
-def _register_repop_fn_class(name: str, repop_cls: Type['repop_fn.RepopFunction']):
+def register_repop_fn_class(name: str, repop_cls: Type['repop_fn.RepopFunction']):
     _registry[REPOP][name] = repop_cls
 
 
 def register_repop_fn(name: str):
     def decorator(repop_cls: Type['repop_fn.RepopFunction']):
-        _register_repop_fn_class(name, repop_cls)
+        register_repop_fn_class(name, repop_cls)
         return repop_cls
     return decorator
 
 
 def register_selection_fn(name: str):
     def decorator(selection_cls: Type['selection_fn.SelectionFunction']):
-        _register_selection_fn_class(name, selection_cls)
+        register_selection_fn_class(name, selection_cls)
         return selection_cls
     return decorator
 
 
 def register_callback(name: str):
     def decorator(cb_cls: Type['callback.Callback']):
-        _register_callback_class(name, cb_cls)
+        register_callback_class(name, cb_cls)
         return cb_cls
     return decorator
 

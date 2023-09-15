@@ -30,22 +30,21 @@ class ExperimentRunner:
             for callback_name in config.get('callbacks', [])
         ])
 
-        self.simualtion = EvolutionSimulation(config, callbacks=self.callbacks)
+        self.simulation = EvolutionSimulation(config, callbacks=self.callbacks)
 
     def run(self):
         try:
             for generation in range(0, self.n_generations):
-                self.simualtion.run_generation(generation)
+                self.simulation.run_generation(generation)
 
         except KeyboardInterrupt:
-            self.callbacks.on_interrupt()
+            self.callbacks.on_interrupt(self.simulation.world)
 
         except Exception as e:
-            self.callbacks.on_interrupt()
+            self.callbacks.on_interrupt(self.simulation.world)
             self._handle_exception(e)
 
     def _handle_exception(self, e):
-        self.callbacks.on_interrupt()
         crash_dir = f'{self.experiment_dir}/crash'
         Path(crash_dir).mkdir(parents=True, exist_ok=True)
 

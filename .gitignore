@@ -1,5 +1,5 @@
 # Project ignores
-experiments/logs
+experiments/runs
 
 # IDE
 .vscode

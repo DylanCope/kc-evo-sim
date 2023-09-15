@@ -91,8 +91,11 @@ class LoggerCallback(Callback):
             plt.savefig(f'{self.experiment_dir}/{metric}.png')
             plt.clf()
 
-    def on_interrupt(self) -> None:
+    def on_interrupt(self, world: World) -> None:
+        print('Interrupted. Saving history...')
         self.save_history()
+        print('Saving genomes...')
+        save_genomes_to_file(world, f'{self.experiment_dir}/latest_genomes')
 
     def save_history(self):
         with open(f'{self.experiment_dir}/history.yaml', 'w') as history_file:

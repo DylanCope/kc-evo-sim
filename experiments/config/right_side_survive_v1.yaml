@@ -1,4 +1,11 @@
+n_generations: 20
+world_width: 50
+world_height: 50
+pop_size: 200
 selection_config:
   method: 'one_side_survive'
   survival_side: 'right'
   survival_region_proportion: 0.1
+callbacks:
+  render_video:
+    video_frequency: 5

@@ -20,7 +20,7 @@ class Callback(ABC):
                              world: World) -> None:
         pass
 
-    def on_interrupt(self) -> None:
+    def on_interrupt(self, world: World) -> None:
         pass
 
 
@@ -47,6 +47,6 @@ class RunCallbacks(Callback):
         for callback in self.callbacks:
             callback.on_generation_finish(generation, generation_logs, world)
 
-    def on_interrupt(self) -> None:
+    def on_interrupt(self, world: World) -> None:
         for callback in self.callbacks:
-            callback.on_interrupt()
+            callback.on_interrupt(world)

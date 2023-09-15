@@ -1,3 +1,4 @@
+from evo.organism import Organism
 from evo.world import World
 
 from abc import ABC
@@ -13,7 +14,7 @@ class RepopFunction(ABC):
     def __call__(self, world: World) -> dict:
         return self.repopulate(world)
 
-    def create_new_organism(self, world: World) -> bool:
+    def create_new_organism(self, world: World) -> Organism:
         raise NotImplementedError()
 
     def repopulate(self, world: World) -> dict:

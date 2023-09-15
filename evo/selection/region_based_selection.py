@@ -1,6 +1,6 @@
-from evo.organism import Organism
 from evo.selection.selection_fn import SelectionFunction
 from evo.util.registry import register_selection_fn
+from evo.organism import Organism
 from evo.world import World
 
 
