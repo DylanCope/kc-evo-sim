@@ -24,6 +24,8 @@ There are many possible questions that the students could explore with their sim
 
 ## About the Simulation
 
+### A Simple Example
+
 As mentioned previously, this simulation is heavily inspired by [David Miller's simulation](https://www.youtube.com/watch?v=N3tRFayqVtk&ab_channel=davidrandallmiller).
 The basic idea is that there is a grid world in which these "creatures" must fulfill certain selection criteria in order to survive. In the example below, they must reach the green squares in the environment. The creatures are controlled by a small feed-forward neural network (see [this helpful YouTube series](https://www.youtube.com/watch?v=bxe2T-V8XRs&ab_channel=WelchLabs) for a primer on neural networks).
 
@@ -39,6 +41,22 @@ As the simulation runs, it produces data, logs, and plots metrics such as the su
 
 <p align="center">
 <img src="./assets/survival_rate.png" width=350dpi/>
+</p>
+
+### A More Interesting Example
+
+We can make this example more interesting by introducing a simple barrier in the path to the survival region. In the below videos, we see that as before the creatures start out moving randomly in all directions. By generation 20 they are almost all moving to the right, and about 60% are surviving. By generation 100 we see that the genetic diversity in the population has started to noticibly narrow, as made visible by the colours of the creatures. 200 generations later and we see that a bit of progress has been made. They no longer only move right, but also react to one another and move up or down accordingly. The result is the smoother "mound-like" pile on the barrier.
+
+On generation 580, we see that evolution has essentially solved the task, with 91.5% surviving. The agents are now better at coordinating their actions while on the mound, and while in the survival zone. All but one managed to get off the barrier, and only a handful more were unable to make it to the survival zone.
+
+<p align="center">
+<img src="./assets/barrier_evolution.gif"/>
+</p>
+
+If we turn to the survival rate graph we can see these transitions. Generation 20 sits just about where the sharp increase levels off to a gradual climb in performance. Then, after generation 300 we see another sharp climb, presumbaly as the strategy for getting off the barrier was found and refined.
+
+<p align="center">
+<img src="./assets/survival_rate_2.png" width=350dpi/>
 </p>
 
 ## Installation

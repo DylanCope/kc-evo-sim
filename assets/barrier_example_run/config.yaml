@@ -1,0 +1,39 @@
+callbacks:
+  logger:
+    log_frequency: 1
+    log_to_stdout: true
+    plot_frequency: 3
+    plot_metrics:
+    - survival_rate
+    priority: 1
+    save_genomes: true
+    save_genomes_frequency: 20
+  render_video:
+    fps: 10
+    video_frequency: 20
+experiment_dir: experiments/runs/rs_v1_one_barrier/run_2023-09-16_01-11-35_8770174447698
+experiment_name: rs_v1_one_barrier
+hidden_layer_dims:
+- 5
+- 5
+include_diagonal_cells: false
+inherits_from: right_side_survive_v1
+mutation_rate: 0.05
+n_generations: 2000
+pop_size: 200
+repop_config:
+  method: random_crossover
+selection_config:
+  method: one_side_survive
+  survival_region_proportion: 0.1
+  survival_side: right
+world_gen:
+  barriers:
+  - - 0.65
+    - 0.3
+    - 0
+    - 0.4
+  method: simple_barriers
+world_height: 50
+world_steps_per_generation: 100
+world_width: 50
