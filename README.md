@@ -96,11 +96,17 @@ callbacks:
 
 The key thing to understand is that the config files can inherit from one another, and any values not specified will be filled in automatically by the `default_config.yaml` file. You can create new config YAML files in the `experiments/config` directory to play with different parameter configurations.
 
-### Custom Functionality
+## Custom Functionality
 
-There are 3 main forms of customisation: creating custom *selection functions*, *repopulation functions*, or *callbacks*. Selection functions will be called at the end of each generation and the user must define a `selection_fn(self, world: World, organism: Organism) -> bool` method to decide if an organism survives to the next generation. For a custom repopulation function the user decides how the next generation is built by overriding a `create_new_organism(self, world: World) -> Organism`, which creates a new organism to be added to population and replace those that were not selected.
+There are four main forms of customisation: creating custom *selection functions*, *repopulation functions*, *world generators*, or *callbacks*. 
 
-Alternatively, the user can override the `select` method for a selection function, or the `repopulate` method for repopulation function to have more control.
+### Selection and Repopulation
+
+Selection and repopulation are fundamental parts of evolutionary computation, as such there are many different approaches that we could implement.
+
+In this project, selection functions will be called at the end of each generation and the user must define a `selection_fn(self, world: World, organism: Organism) -> bool` method to decide if an organism survives to the next generation. For a custom repopulation function the user decides how the next generation is built by overriding a `create_new_organism(self, world: World) -> Organism`, which creates a new organism to be added to population and replace those that were not selected. The default 'random_crossover' repopulation method uses the `crossover` method on the `Genome` class, but a custom `create_new_organism` could employ any creative or bizzare strategy!
+
+Addtionally, the user can override the `select` method for a selection function, or the `repopulate` method for repopulation function to have more control.
 
 Creating a new selection function is done by defining a subclass of the `SelectionFn` class:
 ```py
@@ -120,7 +126,7 @@ The process for setting up a repop function is almost identical. For examples of
 
 Its important to note the registration of the selection function using the `register_selection_fn` decorator. This is an important part that links the configuration files to the class. When you specify the "method" in the selection config (see the example YAML above), it will look to find a class that has been registered with that name.
 
-**Note:** If you are new to Python and coming from a compiled language such as Java, you may run into problems if you custom class is never declared. In Python you have to make sure that the lines of code that define your class are actually called, and the custom function is then properly registered. If you want to avoid this problem all together, you can manually register the class in your own script.
+**Note:** If you are new to Python and coming from a compiled language such as Java, you may run into problems if you custom class is never declared. In Python you have to make sure that the lines of code that define your class are actually called, and the custom function is then properly registered. You will notice that this is handled in the `__init__.py` files in the `evo` package. If you want to avoid this problem all together, you can manually register the class in your own script.
 
 ```py
 # custom_selection_fn.py
@@ -144,3 +150,77 @@ from evo.util.registry import register_selection_fn_class
 register_selection_fn_class('custom_selection_fn', MyCustomSelectionFn)
 ...
 ```
+
+However you register the selection function, to use the custom selection function, your config will need to look something like:
+
+```yaml
+...
+selection_config:
+  method: 'custom_selection_fn'
+  my_param: 5
+...
+```
+
+Notice that we can put custom parameters into the config, which are accessible from the code. We also have access to global configuration values, such as the world width:
+```py
+    def selection_fn(self, world: World, organism: Organism) -> bool:
+        my_param = self.config.get('my_param')
+        world_width = self.global_config.get('world_width')
+```
+
+### World Generators
+
+As we saw in the section showcasing the simulation with the barrier, a small change to the environment can have a big difference and introduce subtle complexities. Creating a custom `WorldGenerator` class looks very similar to selection or repop functions:
+```py
+from evo.world import World
+from evo.world_gen.world_generator import WorldGenerator
+from evo.util.registry import register_world_gen
+
+
+@register_world_gen('my_world_generator')
+class MyWorldGenerator(WorldGenerator):
+
+    def generate(self, world: World):
+        # your code here
+```
+
+And again, similarly, the configuration file to use this generator in an experiment would look like:
+```yaml
+world_gen:
+  method: 'my_world_generator'
+  my_param: 10
+```
+In the `generate` method, you can populate the world using the `world.set_cell(x: int, y: int, value)` method. Note that by default, anything that is not an `Organism` will be rendered as a dark grey filled square. Custom renderers can be writter with custom callbacks, as demonstrated in the next section.
+
+### Simulation Callbacks
+
+Simulation callbacks are called during execution to perform useful utilities such as measuring metrics, rendering video frames, or logging data. You can create a custom callback by inheriting from the `Callback` class and implementing any of the methods.
+```py
+from evo.util.registry import register_callback
+from evo.util.callback import Callback
+
+@register_callback('my_callback')
+class MyCallback(Callback):
+  
+    def on_step_finish(self, generation: int, world: World) -> dict:
+        # your code here
+        return log_dict  # dictionary of things to be logged
+
+    def on_generation_finish(self,
+                             generation: int,
+                             generation_logs: dict,
+                             world: World) -> None:
+        # your code here
+
+    def on_interrupt(self, world: World) -> None:
+        # your code here
+```
+
+Then to use the callback in an experiment, add it to the list of callbacks in the configuration:
+```yaml
+callbacks:
+  - my_callback:
+    my_param: 10
+```
+
+For examples of callbacks see the `evo.util.render.RenderVideoCallback` or the `evo.util.logger.LoggerCallback` classes.

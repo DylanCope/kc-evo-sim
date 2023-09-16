@@ -13,7 +13,7 @@ callbacks:
     video_frequency: 10
     fps: 10
   logger:
-    priority: 1
+    priority: inf
     log_frequency: 1
     plot_frequency: 3
     plot_metrics: ['survival_rate',]

@@ -9,7 +9,7 @@ class Callback(ABC):
         self.global_config = config
         callbacks_config = config.get('callbacks')
         self.config = callbacks_config.get(callback_name)
-        self.priority = self.config.get('priority', 0)
+        self.priority = float(self.config.get('priority', 0))
 
     def on_step_finish(self, generation: int, world: World) -> dict:
         return dict()
