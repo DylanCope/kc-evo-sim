@@ -27,9 +27,11 @@ There are many possible questions that the students could explore with their sim
 ### A Simple Example
 
 As mentioned previously, this simulation is heavily inspired by [David Miller's simulation](https://www.youtube.com/watch?v=N3tRFayqVtk&ab_channel=davidrandallmiller).
-The basic idea is that there is a grid world in which these "creatures" must fulfill certain selection criteria in order to survive. In the example below, they must reach the green squares in the environment. The creatures are controlled by a small feed-forward neural network (see [this helpful YouTube series](https://www.youtube.com/watch?v=bxe2T-V8XRs&ab_channel=WelchLabs) for a primer on neural networks).
+The basic idea is that there is a grid world in which these "creatures" must fulfill certain selection criteria in order to survive. In the following examples, they must reach the green squares in the environment. The creatures are controlled by a small feed-forward neural network (see [this helpful YouTube series](https://www.youtube.com/watch?v=bxe2T-V8XRs&ab_channel=WelchLabs) for a primer on neural networks).
 
-The neural network takes in some information about whether or not adjacent cells are occupied (indicated with a 1 or a 0) and the position of the creature in the world (between 0 and 1). The network then outputs a number for each action it could take, i.e. go up, down, left, or right, and the creature picks the action with the highest value.
+The neural network takes in some information about whether or not adjacent cells are occupied (indicated with a 1 or a 0) and the position of the creature in the world (between 0 and 1). The network then outputs a number for each action it could take, i.e. go up, down, left, or right, and the creature picks the action with the highest value. For example, a creatures neural network brain might look like the following diagram. The genes of the creatures encode the weights of the connections (show as -1 being red, and +1 being blue).
+
+![](./assets/example_nn.png)
 
 The initial population of creatures is randomly given weights in its neural networks, but only those that happened to be born in the green zone, or those who tended to move right, survived. Over the generations, the individuals that were more likely to make it to the green zone pass on their genes. You can see that by generation 15 some of the individuals even seem to move up or down if they detect that they can't move right, and therefore manage to slot themselves into the green area even when it is quite full.
 
