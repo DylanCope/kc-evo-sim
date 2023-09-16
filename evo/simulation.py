@@ -1,7 +1,8 @@
 from evo.world import World
 from evo.organism import Organism
-from evo.util.registry import get_selection_function, get_repop_function
+from evo.util.registry import get_selection_function, get_repop_function, get_world_generator
 from evo.util.callback import RunCallbacks
+from evo.world_gen.world_generator import WorldGenerator
 
 
 class EvolutionSimulation:
@@ -14,7 +15,8 @@ class EvolutionSimulation:
         assert self.steps_per_generation is not None, \
             'world_steps_per_generation not specified in config'
 
-        self.world = World(config)
+        self.world_generator: WorldGenerator = get_world_generator(config)
+        self.world = World(config, self.world_generator)
 
         self.pop_size = config.get('pop_size')
         assert self.pop_size is not None, \

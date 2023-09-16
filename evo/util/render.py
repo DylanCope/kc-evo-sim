@@ -18,11 +18,11 @@ import os
 os.environ["SDL_VIDEODRIVER"] = "dummy"
 
 pygame.display.init()
-WINDOW_SIZE = 800
-PYGAME_WINDOW = pygame.display.set_mode((WINDOW_SIZE, WINDOW_SIZE))
+PYGAME_WINDOW = None
 WHITE = (255, 255, 255)
 LIGHT_GREEN = (192, 255, 158)
 BLACK = (0, 0, 0)
+DARK_GRAY = (50, 50, 50)
 
 
 @register_callback('render_video')
@@ -89,10 +89,19 @@ def render_world(world: World,
     Returns:
         np.ndarray: The pixel array of the rendered world.
     """
-    PYGAME_WINDOW.fill(WHITE)
 
-    cell_width = WINDOW_SIZE / world.world_width
-    cell_height = WINDOW_SIZE / world.world_height
+    # cell_width = WINDOW_SIZE / world.world_width
+    # cell_height = WINDOW_SIZE / world.world_height
+    cell_height = 16
+    cell_width = 16
+
+    global PYGAME_WINDOW
+    if PYGAME_WINDOW is None:
+        window_width = int(cell_width * world.world_width)
+        window_height = int(cell_height * world.world_height)
+        PYGAME_WINDOW = pygame.display.set_mode((window_width, window_height))
+
+    PYGAME_WINDOW.fill(WHITE)
 
     def get_cell_rect(x: int, y: int):
         return (
@@ -113,12 +122,12 @@ def render_world(world: World,
                     rect = get_cell_rect(x, y)
                     pygame.draw.rect(PYGAME_WINDOW, LIGHT_GREEN, rect)
 
-    # Draw the organisms as circles on the grid
-    for organism in world.organisms:
-        x, y = world.get_organism_position(organism)
-        if world.grid[y][x] is not None:
-            rect = get_cell_rect(x, y)
-            pygame.draw.ellipse(PYGAME_WINDOW, get_organism_colour(organism), rect)
+    for (x, y), value in world.occupied_cells.items():
+        rect = get_cell_rect(x, y)
+        if isinstance(value, Organism):
+            pygame.draw.ellipse(PYGAME_WINDOW, get_organism_colour(value), rect)
+        else:
+            pygame.draw.rect(PYGAME_WINDOW, DARK_GRAY, rect)
 
     # returns the pixel array of the pygame window as a numpy array
     return pygame.surfarray.array3d(pygame.display.get_surface())

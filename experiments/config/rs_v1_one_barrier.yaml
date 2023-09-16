@@ -1,0 +1,12 @@
+inherits_from: right_side_survive_v1
+world_width: 50
+world_height: 50
+n_generations: 2000
+callbacks:
+  render_video:
+    video_frequency: 20
+  logger:
+    save_genomes_frequency: 20
+world_gen:
+  method: 'simple_barriers'
+  barriers: [[0.65, 0.3, 0, 0.4]]

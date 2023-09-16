@@ -6,7 +6,7 @@ import random
 
 class World:
 
-    def __init__(self, config: dict) -> None:
+    def __init__(self, config: dict, world_generator) -> None:
         self.config = config
         self.world_width = config.get('world_width')
         self.world_height = config.get('world_height')
@@ -22,6 +22,11 @@ class World:
         # Data structures for storing organisms
         self.organisms: List[Organism] = []
         self.grid = [[None for _ in range(self.world_width)] for _ in range(self.world_height)]
+        self.occupied_cells = dict()
+
+        # Generate the world
+        self.world_generator = world_generator
+        self.world_generator.generate(self)
 
     @property
     def current_population(self) -> int:
@@ -29,6 +34,15 @@ class World:
 
     def is_cell_occupied(self, x: int, y: int) -> bool:
         return self.grid[y][x] is not None
+
+    def set_cell(self, x: int, y: int, value) -> None:
+        self.grid[y][x] = value
+        self.occupied_cells[(x, y)] = value
+
+    def delete_cell(self, x: int, y: int) -> None:
+        self.grid[y][x] = None
+        if (x, y) in self.occupied_cells:
+            del self.occupied_cells[(x, y)]
 
     def find_random_empty_cell(self) -> tuple:
         empty_cells = []
@@ -49,14 +63,16 @@ class World:
                               organism: Organism,
                               x: int, y: int) -> None:
         self.grid[y][x] = organism
+        self.occupied_cells[(x, y)] = organism
 
         if organism.local_world_state is not None:
             old_x = organism.local_world_state.x
             old_y = organism.local_world_state.y
-            self.grid[old_y][old_x] = None
+            self.delete_cell(old_x, old_y)
 
             organism.local_world_state.x = x
             organism.local_world_state.y = y
+
         else:
             if self.include_diagonal_cells_in_local_state:
                 n_local_cells = 8
@@ -136,9 +152,12 @@ class World:
         self.set_organism_position(organism, new_x, new_y)
 
     def reset(self) -> None:
+        self.occupied_cells.clear()
         for y in range(self.world_height):
             for x in range(self.world_width):
                 self.grid[y][x] = None
+
+        self.world_generator.generate(self)
 
         random.shuffle(self.organisms)
         for organism in self.organisms:
@@ -154,4 +173,4 @@ class World:
     def kill_organism(self, organism: Organism) -> None:
         self.organisms.remove(organism)
         x, y = self.get_organism_position(organism)
-        self.grid[y][x] = None
+        self.delete_cell(x, y)
