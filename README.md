@@ -14,7 +14,7 @@ In their article, ["The Surprising Creativity of Digital Evolution: A Collection
 
 **Problem Statement**
 
-In this project students will be tasks with creating a Digital Evolution simulation of their choosing. I have created a simple [codebase](https://github.com/DylanCope/kc-evo-sim) that the students can start from if they like, but they are free to take a different approach. My codebase is inspired by David Miller's evolution simulation that can be seen in his YouTube video ["I programmed some creatures. They Evolved."](https://www.youtube.com/watch?v=N3tRFayqVtk&ab_channel=davidrandallmiller).
+In this project students will be tasked with creating a Digital Evolution simulation of their choosing. I have created a simple [codebase](https://github.com/DylanCope/kc-evo-sim) that the students can start from if they like, but they are free to take a different approach. My codebase is inspired by David Miller's evolution simulation that can be seen in his YouTube video ["I programmed some creatures. They Evolved."](https://www.youtube.com/watch?v=N3tRFayqVtk&ab_channel=davidrandallmiller).
 
 There are many possible questions that the students could explore with their simulations, but here are few starting points:
 1. What are the effects of different mutation and genetic crossover schemes?
