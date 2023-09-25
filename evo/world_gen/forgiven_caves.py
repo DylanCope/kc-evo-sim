@@ -21,8 +21,8 @@ def get_state(dimensions, array: RockArray, x, y, r1_cutoff, r2_cutoff, wall_rad
     :return: Pixel's state.
     '''
     # print((x - dimensions / 2) ** 2 + (y - dimensions / 2) ** 2, wall_radius ** 2)
-    # if wall_radius != -1 and (x - dimensions / 2) ** 2 + (y - dimensions / 2) ** 2 > wall_radius ** 2:
-    #     return True
+    if wall_radius != -1 and (x - dimensions / 2) ** 2 + (y - dimensions / 2) ** 2 > wall_radius ** 2:
+        return True
     return (count_neighbours(array, 1, x, y) >= r1_cutoff != -1) or \
         (count_neighbours(array, 2, x, y) <= r2_cutoff != -1) or (array[y][x] and r1_cutoff == -1 and r1_cutoff == -1)
 
@@ -44,7 +44,7 @@ def count_neighbours(array: RockArray, distance: float, x: int, y: int) -> int:
     )
 
 
-def generate_caves(dimensions: int, fillprob: float = .4, r1_cutoff=5, r2_cutoff=2) -> RockArray:
+def generate_caves(dimensions: int, fillprob: float = .4, r1_cutoff=5, r2_cutoff=2, include_wall=True) -> RockArray:
 
     rock_map: RockArray = [
         [rn.random() < fillprob for _ in range(dimensions)]
@@ -57,18 +57,19 @@ def generate_caves(dimensions: int, fillprob: float = .4, r1_cutoff=5, r2_cutoff
 
     for x in range(dimensions):
         for y in range(dimensions):
-            rock_map[y][x] = get_state(dimensions, rock_map, x, y, -1, -1, dimensions / 2 - 2)
-
-    for x in range(dimensions):
-        for y in range(dimensions):
             rock_map[y][x] = get_state(dimensions, rock_map, x, y, r1_cutoff, -1, -1)
 
-    # # Make the edges walls
-    # rock_map[0] = [True for _ in range(dimensions)]
-    # rock_map[-1] = [True for _ in range(dimensions)]
-    # for i in range(dimensions):
-    #     rock_map[i][0] = True
-    #     rock_map[i][-1] = True
+    if include_wall:
+        for x in range(dimensions):
+            for y in range(dimensions):
+                rock_map[y][x] = get_state(dimensions, rock_map, x, y, -1, -1, dimensions / 2 - 2)
+
+        # Make the edges walls
+        rock_map[0] = [True for _ in range(dimensions)]
+        rock_map[-1] = [True for _ in range(dimensions)]
+        for i in range(dimensions):
+            rock_map[i][0] = True
+            rock_map[i][-1] = True
 
     return rock_map
 
@@ -91,9 +92,14 @@ class ForgivenCavesWorldGen(WorldGenerator):
         self.fillprob = self.config.get('fillprob', .4)
         self.r1_cutoff = self.config.get('r1_cutoff', 5)
         self.r2_cutoff = self.config.get('r2_cutoff', 2)
+        self.include_wall = self.config.get('include_wall', True)
 
     def generate(self, world: World):
-        rock_map = generate_caves(self.world_width, self.fillprob, self.r1_cutoff, self.r2_cutoff)
+        rock_map = generate_caves(self.world_width,
+                                  self.fillprob,
+                                  self.r1_cutoff,
+                                  self.r2_cutoff,
+                                  self.include_wall)
         for x in range(self.world_width):
             for y in range(self.world_height):
                 if rock_map[y][x]:

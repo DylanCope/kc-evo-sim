@@ -9,13 +9,14 @@ from evo.util import get_timestamp, merge_dicts_recursively
 
 class ExperimentRunner:
 
-    def __init__(self, config):
+    def __init__(self, config, test=False):
         self.n_generations = config.get('n_generations')
         assert self.n_generations is not None, \
             'n_generations not specified in config'
 
         self.name = config.get('experiment_name')
-        self.experiment_dir = f'experiments/runs/{self.name}/run_{get_timestamp()}_{hash(self)}'
+        base_name = 'run' if not test else 'test_run'
+        self.experiment_dir = f'experiments/runs/{self.name}/{base_name}_{get_timestamp()}_{hash(self)}'
         Path(self.experiment_dir).mkdir(parents=True, exist_ok=True)
         config['experiment_dir'] = self.experiment_dir
 
@@ -57,7 +58,7 @@ class ExperimentRunner:
         raise e
 
 
-def load_config(config_name: str):
+def load_config(config_name: str, test=False):
     with open(f'experiments/config/{config_name}.yaml') as config_file:
         config = yaml.load(config_file)
 
@@ -65,8 +66,11 @@ def load_config(config_name: str):
         parent_config = load_config(config['inherits_from'])
         config = merge_dicts_recursively(parent_config, config)
 
-    elif config_name != 'default_config':
+    elif config_name not in ['default_config', 'test_overrides']:
         parent_config = load_config('default_config')
         config = merge_dicts_recursively(parent_config, config)
+
+    if test:
+        config = merge_dicts_recursively(config, load_config('test_overrides'))
 
     return config

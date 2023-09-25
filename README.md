@@ -235,3 +235,11 @@ For examples of callbacks see the `evo.util.render.RenderVideoCallback` or the `
 - [ ] Customisations for organism observation and action spaces.
 - [ ] Make worlds more interactive. I think it would be interesting for organisms to be able to deposit things in their environment that others can sense (e.g. pheromones, or food), and see if they can evolve stigmergic communication behaviours.
 - [ ] Add the option for a single generation to consist of multiple "trials" rather than just the one.
+- [ ] Add Weights and Biases integration for logging.
+- [ ] Support for custom brains and neural network architectures.
+
+If you want to contribute to this project by implementing any of these ideas, or have ideas of your own, please feel free to open an issue or pull request.
+
+## Acknowledgements
+
+Firstly, thanks to David Miller for his [video](https://www.youtube.com/watch?v=N3tRFayqVtk&ab_channel=davidrandallmiller) that inspired this project. Secondly, thanks to members of the [ProtoEvo discord community](https://github.com/DylanCope/Evolving-Protozoa) that helped proof read this document and provided feedback on the codebase.

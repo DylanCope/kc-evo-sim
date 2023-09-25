@@ -1,5 +1,5 @@
-world_width: 50
-world_height: 50
+world_width: 75
+world_height: 75
 pop_size: 200
 selection_config:
   method: 'one_side_survive'
@@ -14,6 +14,6 @@ callbacks:
     save_genomes_frequency: 20
 world_gen:
   method: 'forgiven_caves'
-  fill_prob: 0.5
+  fill_prob: 0.4
   r1_cutoff: 5
   r2_cutoff: 3

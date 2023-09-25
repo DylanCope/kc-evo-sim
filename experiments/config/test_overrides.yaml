@@ -1,0 +1,6 @@
+n_generations: 5
+callbacks:
+  render_video:
+    video_frequency: 1
+  logger:
+    save_genomes_frequency: 1
