@@ -226,3 +226,12 @@ callbacks:
 ```
 
 For examples of callbacks see the `evo.util.render.RenderVideoCallback` or the `evo.util.logger.LoggerCallback` classes.
+
+## Future Features
+
+- [ ] Add more selection and repopulation functions.
+- [ ] Tools for analysing genomes, and the changes in genetic diversity over time.
+- [ ] Customisation for organisms.
+- [ ] Customisations for organism observation and action spaces.
+- [ ] Make worlds more interactive. I think it would be interesting for organisms to be able to deposit things in their environment that others can sense (e.g. pheromones, or food), and see if they can evolve stigmergic communication behaviours.
+- [ ] Add the option for a single generation to consist of multiple "trials" rather than just the one.

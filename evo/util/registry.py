@@ -1,5 +1,6 @@
 from typing import Type
 
+# TODO: fix type hints - imports cause a circular dependency
 # import evo.util.callback as callback
 # import evo.repop.repop_fn as repop_fn
 # import evo.selection.selection_fn as selection_fn
@@ -19,7 +20,7 @@ _registry = {
 }
 
 
-def register_callback_class(name: str, cb_cls: Type['callback.Callback']):
+def register_callback_class(name: str, cb_cls: Type["Callback"]):
     _registry[CALLBACK][name] = cb_cls
 
 

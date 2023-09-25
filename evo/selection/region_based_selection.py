@@ -28,6 +28,9 @@ class SelectionFunctionOneSideSurvive(RegionBasedSelectionFunction):
         assert self.survival_side is not None, \
             'survival_side not specified in config'
 
+        assert self.survival_side in ['left', 'right', 'top', 'bottom'], \
+            'survival_side must be one of [left, right, top, bottom]'
+
     def in_survival_region(self, world: World, x: int, y: int) -> bool:
         if self.survival_side == 'left':
             return x / world.world_width < self.survival_region_proportion

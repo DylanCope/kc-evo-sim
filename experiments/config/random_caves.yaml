@@ -1,0 +1,19 @@
+world_width: 50
+world_height: 50
+pop_size: 200
+selection_config:
+  method: 'one_side_survive'
+  survival_side: 'top'
+  survival_region_proportion: 0.15
+n_generations: 1000
+world_steps_per_generation: 150
+callbacks:
+  render_video:
+    video_frequency: 20
+  logger:
+    save_genomes_frequency: 20
+world_gen:
+  method: 'forgiven_caves'
+  fill_prob: 0.5
+  r1_cutoff: 5
+  r2_cutoff: 3
